@@ -26,7 +26,7 @@ use med_record::MedRecord;
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct PatientRecord {
-    patients: LookupMap<AccountId, User>,
+    patients: LookupMap<AccountId, Patient>,
 }
 
 impl Default for PatientRecord {
@@ -45,7 +45,7 @@ impl PatientRecord {
     #[payable]
     pub fn add_record(&mut self, diagnosis: String, hospital_name: String, medicine_administered: String,
         date_of_admission: String, date_of_release: String,
-        allergies_recorded: String, price: f64) {
+        allergies_recorded: String, price: u64) {
         // Get user account id
         let signer = env::predecessor_account_id();
 
@@ -231,29 +231,31 @@ mod tests {
             .build()
     }
     
-    fn get_params() -> (String, String, String, u64, String, u64) {
-        let image: String = String::from("https://www.ccarprice.com/products/Toyota_RAV4_Hybrid_LE_2022.jpg");
-        let name: String = String::from("Toyota");
-        let model: String = String::from("RAV4");
-        let mileage: u64 = 10000;
-        let year: String = String::from("2022");
-        let price: u64 = 10000000;
-        (image, name, model, mileage, year, price)
+    fn get_params() -> (String, String, String, String, String, String, u64) {
+        let diagnosis: String = String::from("Diarrhea");
+        let hospital_name: String = String::from("CGH"); 
+        let medicine_administered: String = String::from("Flagyl");
+        let date_of_admission: String = String::from("21/04/2022");
+        let date_of_release: String = String::from("21/04/2022"); 
+        let allergies_recorded: String = String::from("Protein Allergies");
+        let price: u64 = 1000;
+
+        (diagnosis, hospital_name, medicine_administered, date_of_admission, date_of_release, allergies_recorded,price)
     }
 
     #[test]
-    fn add_to_wishlist() {
+    fn add_to_records() {
         let context = get_context(false);
         testing_env!(context);
-        let mut contract = Wishlist::default();
+        let mut contract = PatientRecord::default();
         let params = get_params();
 
-        contract.add_car(params.0, params.1, params.2, params.3, params.4, params.5);
+        contract.add_record(params.0, params.1, params.2, params.3, params.4, params.5, params.6);
 
-        if let Some(vehicles) = contract.read_wishlist(0, 3) {
-            assert_eq!(1, vehicles.len());
+        if let Some(records) = contract.read_record(0, 3) {
+            assert_eq!(1, records.len());
             let test_params = get_params();
-            assert_eq!(&vehicles[0].model, &test_params.2);
+            assert_eq!(&records[0].medicine_administered, &test_params.2);
         } else {
             panic!("Error in the code");
         }
@@ -261,26 +263,26 @@ mod tests {
     }
 
     #[test]
-    fn remove_from_wishlist() {
+    fn remove_from_records() {
         let context = get_context(false);
         testing_env!(context);
-        let mut contract = Wishlist::default();
+        let mut contract = PatientRecord::default();
         let params = get_params();
-        contract.add_car(params.0, params.1, params.2, params.3, params.4, params.5);
+        contract.add_record(params.0, params.1, params.2, params.3, params.4, params.5, params.6);
 
-        if let Some(vehicles) = contract.read_wishlist(0, 3) {
-            assert_eq!(1, vehicles.len());
+        if let Some(records) = contract.read_record(0, 3) {
+            assert_eq!(1, records.len());
         } else {
-            panic!("Error reading wishlist");
+            panic!("Error reading records");
         }
 
         // Remove functionality
-        contract.delete_car(0);
+        contract.delete_record(0);
 
-        if let Some(vehicles) = contract.read_wishlist(0, 3) {
-            assert_eq!(0, vehicles.len());
+        if let Some(records) = contract.read_record(0, 3) {
+            assert_eq!(0, records.len());
         } else {
-            panic!("Error reading wishlist");
+            panic!("Error reading records");
         }
     }
 }
