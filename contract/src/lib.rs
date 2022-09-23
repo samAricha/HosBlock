@@ -1,17 +1,3 @@
-/*
- * Example smart contract written in RUST
- *
- * Learn more about writing NEAR smart contracts with Rust:
- * https://near-docs.io/develop/Contract
- *
- *//*
- * Example smart contract written in RUST
- *
- * Learn more about writing NEAR smart contracts with Rust:
- * https://near-docs.io/develop/Contract
- *
- */
-
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::{near_bindgen, env, AccountId, Promise};
@@ -22,7 +8,6 @@ mod med_record;
 use patient::Patient;
 use med_record::MedRecord;
 
-// Define the contract structure
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct PatientRecord {
@@ -39,9 +24,9 @@ impl Default for PatientRecord {
 
 #[near_bindgen]
 impl PatientRecord {
-    /**
-     * Adds a new record object to patients's record
-     */
+    
+    // Add a new record object to patients's record
+     
     #[payable]
     pub fn add_record(&mut self, diagnosis: String, hospital_name: String, medicine_administered: String,
         date_of_admission: String, date_of_release: String,
@@ -55,10 +40,10 @@ impl PatientRecord {
         // Get initial storage space used
         let initial_storage = env::storage_usage();
 
-        // Check if the patient already exists
+        // Checking if the patient already exists 
         if let Some(mut patient) = self.patients.get(&signer) {
-            // Update patient object with the car info
-            patient.add_record(
+            // Update patient object with the record info if patient is present
+            patient.add(
                 diagnosis,
                 hospital_name, 
                 medicine_administered,
@@ -67,17 +52,17 @@ impl PatientRecord {
                 allergies_recorded, 
                 price as f64
             );
-            // Update Patient object on blockchain
+            // Update Patient object on the blockchain
             self.patients.insert(&signer, &patient);
 
-            // Settle storage cost
+            // Pay storage cost
             self.pay_for_storage(initial_storage, deposit);
         } else {
-            // Initialize a new Patient object
+            // Initialize a new Patient object if patient is not present
             let mut patient = Patient::new_patient();
 
             // Update patient object with the record info
-            patient.add_record(
+            patient.add(
                 diagnosis,
                 hospital_name, 
                 medicine_administered,
@@ -95,14 +80,14 @@ impl PatientRecord {
         }
     }
 
-    /**
-     * Retreives a paginated patient record list.
-     */
+    
+    //Retreive/Get a paginated patient record list.
+  
     pub fn read_record(&self, start: u32, limit: u32) -> Option<Vec<MedRecord>> {
         // Get patient account id
         let signer = env::predecessor_account_id();
 
-        // Check if patient record exist in users storage
+        // Check if patient record exist in records
         if let Some(patient) = self.patients.get(&signer) {
             // Get a list of record objects in patient records
             let records : Vec<MedRecord> = patient.show(start, limit);
@@ -114,9 +99,9 @@ impl PatientRecord {
         }
     }
 
-    /**
-     * Remove a patient object from the patients records given its id (index)
-     */
+  
+    // Remove/Delete a patient object from the patients records given its id (index)
+     
     pub fn delete_record(&mut self, id: u64) -> Option<MedRecord> {
         // Get user account id
         let signer = env::predecessor_account_id();
@@ -144,9 +129,9 @@ impl PatientRecord {
     }
 
 
-    /**
-     * Settles storage expenses
-     */
+   
+    // Settles storage expenses
+   
     fn pay_for_storage(&self, initial_storage: u64, attached_storage_cost: u128) {
         // Get Current Storage
         let current_storage = env::storage_usage();
@@ -171,9 +156,9 @@ impl PatientRecord {
         }
     }
     
-    /**
-    * Sends back excess tokens to user
-    */
+    
+    // Sends back excess tokens to user
+    
     pub fn return_excess_tokens(&self, excess_balance: u128) {
         // Get signer address
         let signer = env::predecessor_account_id();
@@ -182,9 +167,9 @@ impl PatientRecord {
         Promise::new(signer).transfer(excess_balance);
     }
 
-    /**
-     * Refunds user on storage release
-     */
+    
+    // Refunds user on storage release
+     
     fn refund_storage_cost(&self, initial_storage: u64) {
         // Get current storage space
         let current_storage = env::storage_usage();

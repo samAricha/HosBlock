@@ -1,0 +1,1 @@
+/home/simplicity/docs/BLOCKCHAIN/Sankore-Near/HospitalBlock/contract/target/wasm32-unknown-unknown/release/med_block.wasm: /home/simplicity/docs/BLOCKCHAIN/Sankore-Near/HospitalBlock/contract/src/lib.rs /home/simplicity/docs/BLOCKCHAIN/Sankore-Near/HospitalBlock/contract/src/med_record.rs /home/simplicity/docs/BLOCKCHAIN/Sankore-Near/HospitalBlock/contract/src/patient.rs
